@@ -1,22 +1,17 @@
 #the bot runs the game
 
 DISCOUNT = 0.9
-LEARNRATE = 0.2
-RANDMOVE = 0.1
+LEARNRATE = 0.4
+RANDMOVE = 0.01
 
 class Qplayer
   attr_accessor :score, :x, :y, :qtable
-  def initialize
+  def initialize(map, impo_state)
     @actions = [0,1,2,3] #0 is N 1 is E 2 is S 4 i s W
     @firstrun = true
-    @map = [
-      ["S", "O", "H", "O"],
-      ["O", "O", "O", "O"],
-      ["O", "H", "O", "O"],
-      ["O", "O", "O", "G"]
-    ] #O = empty, H = hole, G = Goal, S = start
+    @map = map
 
-    @impo_state = [[3, 3, 1], [2, 1, -1], [0, 2, -1]] # [y value, x value, reward], []
+    @impo_state = impo_state
 
     @x = 0
     @y = 0
@@ -31,14 +26,14 @@ class Qplayer
       act = maximize(@y, @x)
       case act
       when 0
-        if @y <3
+        if @y < @map.length-1
           yp = @y+1
         else
           yp = 3
         end
         xp = @x
       when 1
-        if @x <3
+        if @x < @map[0].length-1
           xp = @x+1
         else
           xp = 3
