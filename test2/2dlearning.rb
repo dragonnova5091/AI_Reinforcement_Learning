@@ -4,19 +4,19 @@ require_relative "bot.rb"
 
 class Game
   def initialize
-@map = make_map
-@map_ = @map.clone
+    @map = make_map
+    @impo_state = impo_state_determine(@map)
 
-    @map = [
+  '  @map = [
       ["S", "O", "O", "O", "O", "O"],
       ["O", "O", "O", "H", "O", "O"],
       ["O", "O", "O", "H", "O", "O"],
       ["H", "H", "O", "O", "O", "O"],
       ["O", "O", "O", "H", "H", "O"],
       ["G", "H", "O", "O", "O", "G"]
-    ] #O = empty, H = hole, G = Goal, S = start
+    ] #O = empty, H = hole, G = Goal, S = start'
 
-    @impo_state = [[5, 0, 1], [5,5,1], [3,0,-1], [3,1,-1], [4,3,-1],[4,4,-1], [1,3,-1],[2,3,-1], [5,1,-1]] # [y value, x value, reward], []
+
 
     @qplayer = Qplayer.new(@map, @impo_state)
 
@@ -26,17 +26,10 @@ class Game
   def run_game
 
     while @qplayer.score < 8
-      @map = @map_
-      @map = [
-        ["S", "O", "O", "O", "O", "O"],
-        ["O", "O", "O", "H", "O", "O"],
-        ["O", "O", "O", "H", "O", "O"],
-        ["H", "H", "O", "O", "O", "O"],
-        ["O", "O", "O", "H", "H", "O"],
-        ["G", "H", "O", "O", "O", "G"]
-      ]
+      map = @map.clone
+
       @qplayer.get_input
-      draw_scene(@map)
+      draw_scene(map)
       puts "#{@qplayer.score} "
       sleep 0.1
     end
@@ -61,22 +54,39 @@ class Game
 
     map = Array.new(sizey) {Array.new(sizex)}
     map.length.times do |y|
-      yline.length.times do |x|
+      map[0].length.times do |x|
         map[y-1][x-1] = "O"
+      end
+    end
+
+    if sizex > sizey
+      (sizey+3).times do
+        map[rand(0..map.length-1)][rand(0..map[0].length-1)] = "H"
+      end
+    else
+      (sizex+3).times do
+        map[rand(0..map.length-1)][rand(0..map[0].length-1)] = "H"
       end
     end
 
     map[map.length-1][map[0].length-1] = "G"
 
-    if sizex > sizey
-      (sizey-1).times do
+    return map
+  end
 
-    else
+  def impo_state_determine(map)
+    impo_states = []
 
+    map.length.times do |y|
+      map[0].length.times do |x|
+        if map[y-1][x-1] == "H"
+          impo_states << [y-1, x-1, -1]
+        elsif map[y-1][x-1] == "G"
+          impo_states << [y-1, x-1, 1]
+        end
+      end
     end
-
-
-
+    return impo_states
 
   end
 end
